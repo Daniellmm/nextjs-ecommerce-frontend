@@ -32,7 +32,7 @@ export default function ReviewCard() {
             </div>
 
             <p className="text-gray-400 text-sm">
-                I'm blown away by the quality and style of the clothes I received from Mish.co. From casual wear to elegant dresses, every piece I've bought has exceeded my expectations.
+                I&apos;m blown away by the quality and style of the clothes I received from Mish.co. From casual wear to elegant dresses, every piece I&apos;ve bought has exceeded my expectations.
             </p>
         </div>
     )
