@@ -1,27 +1,34 @@
+
 import Header from "@/components/Header";
 import Hero from "./home/page";
-import NewProduct from "@/components/NewProduct";
-import { mongooseConnect } from "@/lib/mongoose";
-import { Product } from "@/models/Products";
-import TopSelling from "@/components/TopSelling";
 import BrowseSection from "@/components/BrowseSection";
-import CustomerReview from "@/components/CustomerReview";
 import Footer from "@/components/Footer";
+import NewProductsSection from "@/components/sections/NewProductsSection";
+import TopSellingSection from "@/components/sections/TopSellingSection";
+import CustomerReview from "@/components/CustomerReview";
 
-export default async function Home() {
-  await mongooseConnect();
-  const newProducts = await Product.find({}, null, {sort: {createdAt: -1}, limit: 4}).lean();
+// export const revalidate = 1800; // Revalidate every 30 minutes
 
-  const topSelling = await Product.find({topSelling: true}, null, {sort: {topSelling: -1, price: 1}, limit: 4}).lean();
-
+export default function Home() {
   return (
     <div className="overflow-x-hidden">
       <Header />
+
+      {/* Hero section (static content) */}
       <Hero />
-      <NewProduct newProducts={JSON.parse(JSON.stringify(newProducts))} />
-      <TopSelling topSelling={JSON.parse(JSON.stringify(topSelling))} />
+
+      {/* New Products section with cached data */}
+      <NewProductsSection />
+
+      {/* Top Selling section with cached data */}
+      <TopSellingSection />
+
+      {/* Browse section (static content) */}
       <BrowseSection />
+
+      {/* Customer Reviews section */}
       <CustomerReview />
+
       <Footer />
     </div>
   );
