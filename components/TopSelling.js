@@ -12,7 +12,7 @@ export default function TopSelling({ topSelling }) {
       </div>
 
       {/* Scrollable container on small screens */}
-      <div className="w-full overflow-x-auto px-8">
+      <div className="w-full overflow-x-auto scrollbar-hide px-3">
         <div className="flex gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-4 w-max sm:w-full">
           {topSelling?.map(product => (
             <div key={product._id} className="min-w-[250px] sm:min-w-0">
