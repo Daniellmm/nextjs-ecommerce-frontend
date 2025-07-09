@@ -5,7 +5,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 export function ProductCardSkeleton() {
   return (
     <div className="min-w-[250px] sm:min-w-0">
-      <div className="border rounded-lg p-4 shadow-sm">
+      <div className="rounded-lg p-4 shadow-sm">
         <Skeleton height={200} className="mb-3" />
         <Skeleton height={20} className="mb-2" />
         <Skeleton height={16} width="60%" className="mb-2" />
