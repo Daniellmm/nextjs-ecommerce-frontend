@@ -57,7 +57,7 @@ export default function CartPage() {
                         <>
                             <div className="flex flex-col justify-center items-start w-full lg:w-[60%] rounded-4xl border-2 border-[#F0F0F0] gap-y-3 p-5">
                                 {products.map(product => (
-                                    <div>
+                                    <div key={product._id}>
                                         {product.title}
                                     </div>
                                 ))}
