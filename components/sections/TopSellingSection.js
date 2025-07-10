@@ -1,11 +1,12 @@
 // components/sections/TopSellingSection.js
+
 import { Suspense } from 'react';
 import TopSelling from '@/components/TopSelling';
 import { ProductGridSkeleton } from '@/components/skeletons/ProductSkeleton';
-import { getCachedTopSellingProducts } from '@/lib/cache';
+import { getTopSellingProducts } from '@/lib/cache';
 
 async function TopSellingContent() {
-    const topSelling = await getCachedTopSellingProducts();
+    const topSelling = await getTopSellingProducts();
     // console.log(topSelling)
     return <TopSelling topSelling={topSelling} />;
 }

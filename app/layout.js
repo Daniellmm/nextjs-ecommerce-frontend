@@ -1,6 +1,7 @@
 'use client';
-import { Poppins} from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
+import { CartContextProvider } from "@/components/CartContext";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -16,10 +17,10 @@ const poppins = Poppins({
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${poppins.variable} antialiased`}
-      >
-        {children}
+      <body className={`${poppins.variable} antialiased`}>
+        <CartContextProvider>
+          {children}
+        </CartContextProvider>
       </body>
     </html>
   );

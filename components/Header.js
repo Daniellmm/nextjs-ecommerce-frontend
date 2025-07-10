@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { HiMenu, HiX } from 'react-icons/hi';
 import { FaSearch } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { IoClose, IoSearchOutline } from "react-icons/io5";
+import { CartContext } from "./CartContext";
 
 export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
@@ -13,21 +14,21 @@ export default function Header() {
     const [showMobileSearch, setShowMobileSearch] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
-    
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 90); 
-        };
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+
+    const { cartProducts } = useContext(CartContext)
+
+
+    // useEffect(() => {
+    //     const handleScroll = () => {
+    //         setScrolled(window.scrollY > 90);
+    //     };
+    //     window.addEventListener("scroll", handleScroll);
+    //     return () => window.removeEventListener("scroll", handleScroll);
+    // }, []);
 
     return (
         <header
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300
-                ${scrolled ? "bg-white shadow-md" : "bg-transparent"} 
-            `}
-        >
+            className='fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white shadow-none'>
             <div className="flex justify-between items-center max-w-screen-xl w-full mx-auto lg:px-10 px-4 py-3">
                 {/* Left: Logo + Menu button */}
                 <div className='flex gap-2 items-center'>
@@ -76,7 +77,12 @@ export default function Header() {
                             className="text-2xl lg:hidden"
                             onClick={() => setShowMobileSearch(!showMobileSearch)}
                         />
-                        <FiShoppingCart className='text-2xl' />
+                        <Link href={'/cart'}>
+                            <div className="relative">
+                                <FiShoppingCart className='text-2xl relative' />
+                                <div className="px-[5px] bg-black rounded-full text-white absolute text-sm right-[-10px] top-[-8px]">{cartProducts.length}</div>
+                            </div>
+                        </Link>
                         <MdOutlineAccountCircle className='text-2xl' />
                     </div>
                 </div>

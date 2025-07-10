@@ -1,5 +1,5 @@
 import mongoose, { Schema, model, models } from "mongoose";
-import { type } from "os";
+
 
 const CategorySchema = new Schema({
     name: {
