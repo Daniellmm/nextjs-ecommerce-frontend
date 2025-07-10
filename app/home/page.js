@@ -14,7 +14,7 @@ import PrimaryBtn from '@/components/PrimaryBtn'
 export default function Hero() {
     return (
         <>
-            <section className='overflow-hidden px-10 w-full h-screen relative'>
+            <section className='overflow-hidden px-10 w-full h-screen relative pt-28 lg:pt-16 '>
                 <div className='relative flex flex-col justify-center items-center lg:flex-row'>
                     <div className='flex flex-col gap-y-7 lg:pt-20 justify-center items-start '>
                         <h1 className='lg:text-7xl text-4xl text-start pt-5 font-bold flex-1'>
