@@ -61,9 +61,9 @@ export default function ProductCard({ product }) {
                 <div className='flex justify-between items-center'>
                     <div>
                         <div className='flex flex-wrap gap-2 '>
-                            <span className="text-black text-xl font-semibold">${product.price}</span>
+                            <span className="text-black text-xl font-semibold">₦{product.price.toLocaleString()}</span>
                             {product.discount && (
-                                <span className="text-gray-400 text-xl line-through font-semibold">${product.discount}</span>
+                                <span className="text-gray-400 text-xl line-through font-semibold">₦{product.discount.toLocaleString()}</span>
                             )}
                             {product.percentage && (
                                 <span className="text-red-600 bg-red-200 rounded-full px-2 py-1 text-md">{product.percentage}%</span>

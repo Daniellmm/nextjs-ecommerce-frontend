@@ -2,7 +2,7 @@
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { CartContextProvider } from "@/components/CartContext";
-import Script from "next/script"; // ✅ Make sure to import this
+import Script from "next/script"; 
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -20,7 +20,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* ✅ Load Paystack script in the <head> or body via next/script */}
         <Script
           src="https://js.paystack.co/v1/inline.js"
           strategy="afterInteractive"

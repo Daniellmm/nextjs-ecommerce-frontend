@@ -7,12 +7,14 @@ export function CartContextProvider({ children }) {
     const ls = typeof window !== 'undefined' ? window.localStorage : null;
     const [cartProducts, setCartProducts] = useState([]);
     const isInitialLoad = useRef(true);
+    const [hydrated, setHydrated] = useState(false);
 
     // Load from localStorage on first mount
     useEffect(() => {
         if (ls && ls.getItem('cart')) {
             setCartProducts(JSON.parse(ls.getItem('cart')));
         }
+        setHydrated(true);
     }, []);
 
     // Sync with localStorage, but skip on first load
@@ -48,7 +50,7 @@ export function CartContextProvider({ children }) {
     }
 
     return (
-        <CartContext.Provider value={{ cartProducts, setCartProducts, addProduct, removeProduct, removeAllProduct }}>
+        <CartContext.Provider value={{ cartProducts, setCartProducts, addProduct, removeProduct, removeAllProduct, hydrated  }}>
             {children}
         </CartContext.Provider>
     );

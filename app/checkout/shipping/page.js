@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 
 export default function CheckoutPage() {
-    const { cartProducts } = useContext(CartContext);
+    const { cartProducts, hydrated } = useContext(CartContext);
     const router = useRouter();
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -17,20 +17,24 @@ export default function CheckoutPage() {
         address: '',
         phone: '',
         email: '',
+        city: '',
+        postalCode: ''
     });
 
-    // Fetch product details when component mounts
     useEffect(() => {
-        if (cartProducts?.length > 0) {
-            fetchProducts();
-        } else {
-            setIsLoading(false);
+        if (hydrated) {
+            if (cartProducts?.length > 0) {
+                fetchProducts();
+            } else {
+                setIsLoading(false);
+            }
         }
-    }, [cartProducts]);
+    }, [cartProducts, hydrated]);
+
 
     async function fetchProducts() {
         try {
-            const response = await fetch('/api/products', {
+            const response = await fetch('/api/cart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -91,32 +95,67 @@ export default function CheckoutPage() {
 
 
     const handlePaystackPayment = () => {
-        const handler = window.PaystackPop.setup({
-            key: 'your-public-key-here',
-            email: customerEmail,
-            amount: totalAmount * 100, // in kobo
-            currency: 'NGN',
-            ref: `ref-${Date.now()}`, // unique ref
-            metadata: {
-                custom_fields: [
-                    {
-                        display_name: "Mobile Number",
-                        variable_name: "mobile_number",
-                        value: customerPhone,
-                    }
-                ]
-            },
-            callback: function (response) {
-                // Verify payment here on the server
-                console.log('Payment successful!', response);
-            },
-            onClose: function () {
-                console.log('Payment closed');
-            },
-        });
+        if (!window.PaystackPop) {
+            console.error('Paystack script not loaded');
+            return;
+        }
+        try {
+            const handler = window.PaystackPop.setup({
+                key: process.env.NEXT_PUBLIC_PAYSTACK_PK,
+                email: shippingInfo.email,
+                amount: totalPrice * 100, // in kobo
+                currency: 'NGN',
+                ref: `ref-${Date.now()}`,
+                firstname: shippingInfo.name.split(' ')[0],
+                lastname: shippingInfo.name.split(' ')[1] || '',
+                phone: shippingInfo.phone,
+                metadata: {
+                    custom_fields: [
+                        {
+                            display_name: "Mobile Number",
+                            variable_name: "mobile_number",
+                            value: shippingInfo.phone,
+                        }
+                    ]
+                },
+                callback: function (response) {
+                    verifyPayment(response.reference);
+                    console.log('Payment successful!', response);
+                },
+                onClose: function () {
+                    console.log('Payment closed');
+                },
+            });
 
-        handler.openIframe();
+            handler.openIframe();
+        } catch (error) {
+            console.error('Paystack initialization error:', error);
+
+        }
     };
+
+
+    async function verifyPayment(reference) {
+        try {
+            const res = await fetch('/api/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reference }),
+            });
+
+            const data = await res.json();
+            if (data.status === 'success') {
+                setStep(4);
+            } else {
+                alert('Payment verification failed');
+            }
+        } catch (error) {
+            console.error('Error verifying payment:', error);
+            alert('Something went wrong');
+        }
+    }
+
+
 
 
     const steps = [
@@ -184,6 +223,32 @@ export default function CheckoutPage() {
                                 required
                             />
                             <input
+                                type="email"
+                                placeholder="Email Address"
+                                value={shippingInfo.email}
+                                onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
+                                className="w-full py-2 px-5 border rounded-full"
+                                required
+                            />
+
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <input
+                                    type="text"
+                                    placeholder="City"
+                                    value={shippingInfo.city}
+                                    onChange={(e) => setShippingInfo({ ...shippingInfo, city: e.target.value })}
+                                    className="w-full py-2 px-5 border rounded-full"
+                                    required
+                                /><input
+                                    type="text"
+                                    placeholder="Postal Code"
+                                    value={shippingInfo.postalCode}
+                                    onChange={(e) => setShippingInfo({ ...shippingInfo, postalCode: e.target.value })}
+                                    className="w-full py-2 px-5 border rounded-full"
+                                    required
+                                />
+                            </div>
+                            <input
                                 type="text"
                                 placeholder="Address"
                                 value={shippingInfo.address}
@@ -199,23 +264,22 @@ export default function CheckoutPage() {
                                 className="w-full py-2 px-5 border rounded-full"
                                 required
                             />
-                            <input
-                                type="email"
-                                placeholder="Email Address"
-                                value={shippingInfo.email}
-                                onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
-                                className="w-full py-2 px-5 border rounded-full"
-                                required
-                            />
+
                             <div className="flex w-full justify-between items-center mt-4">
                                 <button onClick={handleBackToCart} type="button" className="flex justify-center gap-2 items-center cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                                        <path fillRule="evenodd" d="M7.28 7.72a.75.75 0 0 1 0 1.06l-2.47 2.47H21a.75.75 0 0 1 0 1.5H4.81l2.47 2.47a.75.75 0 1 1-1.06 1.06l-3.75-3.75a.75.75 0 0 1 0-1.06l3.75-3.75a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                                        <path fillRule="evenodd" d="M11.03 3.97a.75.75 0 0 1 0 1.06l-6.22 6.22H21a.75.75 0 0 1 0 1.5H4.81l6.22 6.22a.75.75 0 1 1-1.06 1.06l-7.5-7.5a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
                                     </svg>
+
                                     Back to cart
                                 </button>
-                                <button type="submit" className="bg-black text-white px-4 py-2 rounded-full">
+                                <button type="submit"
+                                    className="bg-black text-white px-4 py-2 rounded-full flex justify-center items-center gap-3"
+                                >
                                     Next
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                                        <path fillRule="evenodd" d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+                                    </svg>
                                 </button>
                             </div>
                         </form>
@@ -234,9 +298,9 @@ export default function CheckoutPage() {
                             <>
                                 {cartSummary.length > 0 ? (
                                     <div className="w-full mb-6">
-                                        <div className="border rounded-lg p-4 mb-4">
+                                        <div className="rounded-4xl border-2 border-[#d6d5d5] p-4 mb-4">
                                             {cartSummary.map((item, index) => (
-                                                <div key={index} className="flex justify-between items-center py-3 border-b last:border-b-0">
+                                                <div key={index} className="flex justify-between items-center py-3 border-[#d6d5d5] border-b last:border-b-0">
                                                     <div className="flex-1">
                                                         <h3 className="font-medium">{item.title}</h3>
                                                         <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
@@ -249,7 +313,7 @@ export default function CheckoutPage() {
                                             ))}
                                         </div>
 
-                                        <div className="flex justify-between items-center font-bold text-lg border-t pt-4">
+                                        <div className="flex justify-between items-center font-bold text-lg border-[#d6d5d5] border-t pt-4">
                                             <span>Total:</span>
                                             <span>₦{totalPrice.toLocaleString()}</span>
                                         </div>
@@ -268,17 +332,18 @@ export default function CheckoutPage() {
                                 type="button"
                                 className="flex justify-center gap-2 items-center cursor-pointer"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                                    <path fillRule="evenodd" d="M7.28 7.72a.75.75 0 0 1 0 1.06l-2.47 2.47H21a.75.75 0 0 1 0 1.5H4.81l2.47 2.47a.75.75 0 1 1-1.06 1.06l-3.75-3.75a.75.75 0 0 1 0-1.06l3.75-3.75a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                                    <path fillRule="evenodd" d="M11.03 3.97a.75.75 0 0 1 0 1.06l-6.22 6.22H21a.75.75 0 0 1 0 1.5H4.81l6.22 6.22a.75.75 0 1 1-1.06 1.06l-7.5-7.5a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
                                 </svg>
-                                Previous
+
+                                Back
                             </button>
                             <button
                                 onClick={() => setStep(3)}
                                 className="bg-black text-white px-4 py-2 rounded-full flex justify-center items-center gap-3"
                                 disabled={cartSummary.length === 0}
                             >
-                                Proceed to Payment
+                                Next
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
                                     <path fillRule="evenodd" d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                                 </svg>
@@ -319,14 +384,14 @@ export default function CheckoutPage() {
                                 type="button"
                                 className="flex justify-center gap-2 items-center cursor-pointer"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                                    <path fillRule="evenodd" d="M7.28 7.72a.75.75 0 0 1 0 1.06l-2.47 2.47H21a.75.75 0 0 1 0 1.5H4.81l2.47 2.47a.75.75 0 1 1-1.06 1.06l-3.75-3.75a.75.75 0 0 1 0-1.06l3.75-3.75a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                                    <path fillRule="evenodd" d="M11.03 3.97a.75.75 0 0 1 0 1.06l-6.22 6.22H21a.75.75 0 0 1 0 1.5H4.81l6.22 6.22a.75.75 0 1 1-1.06 1.06l-7.5-7.5a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
                                 </svg>
-                                Previous
+                                Back
                             </button>
                             <button onClick={handleBackToCart} type="button" className="flex justify-center gap-2 items-center cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                                    <path fillRule="evenodd" d="M7.28 7.72a.75.75 0 0 1 0 1.06l-2.47 2.47H21a.75.75 0 0 1 0 1.5H4.81l2.47 2.47a.75.75 0 1 1-1.06 1.06l-3.75-3.75a.75.75 0 0 1 0-1.06l3.75-3.75a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                                    <path fillRule="evenodd" d="M11.03 3.97a.75.75 0 0 1 0 1.06l-6.22 6.22H21a.75.75 0 0 1 0 1.5H4.81l6.22 6.22a.75.75 0 1 1-1.06 1.06l-7.5-7.5a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
                                 </svg>
                                 Back to cart
                             </button>

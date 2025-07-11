@@ -107,13 +107,13 @@ export default function CartPage() {
 
                     {products?.length > 0 && cartProducts?.length > 0 && (
                         <>
-                            <div className="flex flex-col justify-center items-start w-full lg:w-[60%] rounded-4xl border-2 border-[#F0F0F0] gap-y-3">
+                            <div className="flex flex-col justify-center px-3 items-start w-full lg:w-[60%] rounded-4xl border-2 border-[#d6d5d5] gap-y-3">
                                 {products.map(product => {
                                     const productCount = cartProducts.filter(id => id === product._id).length;
                                     const isMinimum = productCount === 1;
 
                                     return (
-                                        <div key={product._id} className="w-full flex rounded-lg p-4 gap-4">
+                                        <div key={product._id} className="w-full flex rounded-lg p-4 gap-4 border-[#d6d5d5] border-b last:border-b-0">
                                             {/* LEFT SIDE */}
                                             <div className="flex gap-4 w-2/3 items-center">
                                                 {product.images?.[0] && (
@@ -130,7 +130,7 @@ export default function CartPage() {
                                                     {product.properties?.[0] && (
                                                         <p>{product.properties[0]}</p>
                                                     )}
-                                                    <h2 className="text-md font-semibold">${product.price}</h2>
+                                                    <h2 className="text-md font-semibold">₦{product.price.toLocaleString()}</h2>
                                                 </div>
                                             </div>
 
@@ -180,26 +180,26 @@ export default function CartPage() {
 
                     {/* Checkout Details section */}
                     {!!cartProducts?.length && (
-                        <div className="flex flex-col justify-center items-center w-full lg:w-[40%] rounded-4xl border-2 border-[#F0F0F0] gap-y-3 p-5">
+                        <div className="flex flex-col justify-center items-center w-full lg:w-[40%] rounded-4xl border-2 border-[#d6d5d5] gap-y-3 p-5">
                             <h1 className="text-2xl font-semibold  text-start w-full">Order Summary</h1>
                             <div className="flex justify-between items-center w-full ">
                                 <p className="text-[#00000099]/60">Subtotal</p>
-                                <p className="text-md font-semibold">${totalPrice}</p>
+                                <p className="text-md font-semibold">₦{totalPrice.toLocaleString()}</p>
                             </div>
                             <div className="flex justify-between items-center w-full ">
                                 <p className="text-[#00000099]/60">Discount ({totalpercentage}%)</p>
-                                <p className="text-md font-semibold text-red-600">-${totaldiscount}</p>
+                                <p className="text-md font-semibold text-red-600">-₦{totaldiscount.toLocaleString()}</p>
                             </div>
                             <div className="flex justify-between items-center w-full ">
                                 <p className="text-[#00000099]/60">Delivery Fee</p>
-                                <p className="text-md font-semibold">$0.00</p>
+                                <p className="text-md font-semibold">₦0.00</p>
                             </div>
 
                             <div className="w-full border border-[#F0F0F0]"></div>
 
                             <div className="flex justify-between items-center w-full ">
                                 <p className="text-[#00000099]/80 text-lg">Total</p>
-                                <p className="text-2xl font-semibold">${totalPrice}</p>
+                                <p className="text-2xl font-semibold">₦{totalPrice.toLocaleString()}</p>
                             </div>
 
                             <div className="flex gap-x-3 w-full items-center justify-between">
