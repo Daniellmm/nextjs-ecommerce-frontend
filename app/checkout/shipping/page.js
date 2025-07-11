@@ -1,5 +1,5 @@
 'use client'
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { CartContext } from "@/components/CartContext";
 import { PaystackButton } from "react-paystack";
 import Header from "@/components/Header";
@@ -10,6 +10,7 @@ export default function CheckoutPage() {
     const { cartProducts } = useContext(CartContext);
     const router = useRouter();
     const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [step, setStep] = useState(1);
     const [shippingInfo, setShippingInfo] = useState({
@@ -19,6 +20,38 @@ export default function CheckoutPage() {
         email: '',
     });
 
+    // Fetch product details when component mounts
+    useEffect(() => {
+        if (cartProducts?.length > 0) {
+            fetchProducts();
+        } else {
+            setIsLoading(false);
+        }
+    }, [cartProducts]);
+
+    async function fetchProducts() {
+        try {
+            const response = await fetch('/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ids: cartProducts })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch products');
+            }
+            
+            const productsData = await response.json();
+            setProducts(productsData);
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     function handleBackToCart() {
         router.push('/cart');
     }
@@ -27,15 +60,38 @@ export default function CheckoutPage() {
         setStep(step - 1);
     }
 
-    let totalPrice = 0;
+    // Calculate total price and get unique products with quantities
+    const getCartSummary = () => {
+        const productCounts = {};
+        let totalPrice = 0;
 
-    for (const productId of cartProducts) {
-        const price = products.find(p => p._id === productId)?.price || 0;
-        totalPrice += price;
-    }
+        // Count quantities of each product
+        cartProducts.forEach(productId => {
+            productCounts[productId] = (productCounts[productId] || 0) + 1;
+        });
+
+        // Calculate total and create summary
+        const cartSummary = Object.entries(productCounts).map(([productId, quantity]) => {
+            const product = products.find(p => p._id === productId);
+            if (product) {
+                const subtotal = product.price * quantity;
+                totalPrice += subtotal;
+                return {
+                    ...product,
+                    quantity,
+                    subtotal
+                };
+            }
+            return null;
+        }).filter(Boolean);
+
+        return { cartSummary, totalPrice };
+    };
+
+    const { cartSummary, totalPrice } = getCartSummary();
 
     const publicKey = "your-paystack-public-key";
-    const totalAmount = 5000 * 100; // amount in kobo
+    const totalAmount = totalPrice * 100; // amount in kobo
 
     const componentProps = {
         email: shippingInfo.email,
@@ -160,13 +216,43 @@ export default function CheckoutPage() {
                 {step === 2 && (
                     <>
                         <h2 className="text-2xl font-bold mb-4">Review Order</h2>
-                        {/* List Cart Items Here */}
-                        <ul className="mb-4">
-                            {cartProducts.map((id, index) => (
-                                <li key={index}>Product: {id}</li>
-                                // Replace with actual product data if available
-                            ))}
-                        </ul>
+                        
+                        {isLoading ? (
+                            <div className="flex justify-center items-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+                            </div>
+                        ) : (
+                            <>
+                                {cartSummary.length > 0 ? (
+                                    <div className="w-full mb-6">
+                                        <div className="border rounded-lg p-4 mb-4">
+                                            {cartSummary.map((item, index) => (
+                                                <div key={index} className="flex justify-between items-center py-3 border-b last:border-b-0">
+                                                    <div className="flex-1">
+                                                        <h3 className="font-medium">{item.title}</h3>
+                                                        <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-medium">₦{item.subtotal.toLocaleString()}</p>
+                                                        <p className="text-sm text-gray-600">₦{item.price.toLocaleString()} each</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        
+                                        <div className="flex justify-between items-center font-bold text-lg border-t pt-4">
+                                            <span>Total:</span>
+                                            <span>₦{totalPrice.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-8">
+                                        <p className="text-gray-600">Your cart is empty</p>
+                                    </div>
+                                )}
+                            </>
+                        )}
+
                         <div className="flex w-full justify-between items-center mt-4">
                             <button 
                                 onClick={handlePrevious} 
@@ -181,6 +267,7 @@ export default function CheckoutPage() {
                             <button
                                 onClick={() => setStep(3)}
                                 className="bg-black text-white px-4 py-2 rounded-full flex justify-center items-center gap-3"
+                                disabled={cartSummary.length === 0}
                             >
                                 Proceed to Payment
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
@@ -194,7 +281,26 @@ export default function CheckoutPage() {
                 {step === 3 && (
                     <>
                         <h2 className="text-2xl font-bold mb-4">Payment</h2>
-                        <PaystackButton {...componentProps} className="bg-green-600 text-white px-6 py-3 rounded mb-4" />
+                        
+                        {/* Order Summary */}
+                        <div className="w-full mb-6 p-4 bg-gray-50 rounded-lg">
+                            <h3 className="font-semibold mb-2">Order Summary</h3>
+                            <div className="space-y-1 text-sm">
+                                {cartSummary.map((item, index) => (
+                                    <div key={index} className="flex justify-between">
+                                        <span>{item.title} x{item.quantity}</span>
+                                        <span>₦{item.subtotal.toLocaleString()}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="border-t pt-2 mt-2 flex justify-between font-bold">
+                                <span>Total:</span>
+                                <span>₦{totalPrice.toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        <PaystackButton {...componentProps} className="bg-green-600 text-white px-6 py-3 rounded mb-4 w-full" />
+                        
                         <div className="flex w-full justify-between items-center mt-4">
                             <button 
                                 onClick={handlePrevious} 
