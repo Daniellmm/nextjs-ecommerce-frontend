@@ -37,7 +37,11 @@ export function CartContextProvider({ children }) {
         });
     }
 
+    function removeAllProduct(productId) {
+        setCartProducts(prev => prev.filter(id => id !== productId));
+    }
+
     return (
-        <CartContext.Provider value={{ cartProducts, setCartProducts, addProduct, removeProduct }}>{children}</CartContext.Provider>
+        <CartContext.Provider value={{ cartProducts, setCartProducts, addProduct, removeProduct, removeAllProduct }}>{children}</CartContext.Provider>
     )
 }
