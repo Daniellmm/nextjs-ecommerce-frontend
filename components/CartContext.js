@@ -1,26 +1,33 @@
 'use client'
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useRef } from "react";
 
 export const CartContext = createContext({});
 
-
 export function CartContextProvider({ children }) {
-
     const ls = typeof window !== 'undefined' ? window.localStorage : null;
-    const defaultProducts = ls ? JSON.parse(ls.getItem('cart')) : [];
-
     const [cartProducts, setCartProducts] = useState([]);
+    const isInitialLoad = useRef(true);
 
-    useEffect(() => {
-        ls?.setItem('cart', JSON.stringify(cartProducts));
-    }, [cartProducts]);
-
-
+    // Load from localStorage on first mount
     useEffect(() => {
         if (ls && ls.getItem('cart')) {
             setCartProducts(JSON.parse(ls.getItem('cart')));
         }
     }, []);
+
+    // Sync with localStorage, but skip on first load
+    useEffect(() => {
+        if (isInitialLoad.current) {
+            isInitialLoad.current = false;
+            return;
+        }
+
+        if (cartProducts.length > 0) {
+            ls?.setItem('cart', JSON.stringify(cartProducts));
+        } else {
+            ls?.removeItem('cart');
+        }
+    }, [cartProducts]);
 
     function addProduct(productId) {
         setCartProducts(prev => [...prev, productId]);
@@ -41,6 +48,8 @@ export function CartContextProvider({ children }) {
     }
 
     return (
-        <CartContext.Provider value={{ cartProducts, setCartProducts, addProduct, removeProduct, removeAllProduct }}>{children}</CartContext.Provider>
-    )
+        <CartContext.Provider value={{ cartProducts, setCartProducts, addProduct, removeProduct, removeAllProduct }}>
+            {children}
+        </CartContext.Provider>
+    );
 }

@@ -5,23 +5,29 @@ import Header from "@/components/Header";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
+import { CartSkeleton } from "@/components/skeletons/CartSkeleton";
 
 export default function CartPage() {
 
     const { cartProducts, addProduct, removeProduct, removeAllProduct } = useContext(CartContext);
     const [products, setProducts] = useState([]);
-
+    const [loading, setLoading] = useState(true);
+    const firstLoadRef = useRef(true);
 
     useEffect(() => {
         if (cartProducts?.length > 0) {
-            axios.post('/api/cart', { ids: cartProducts })
-                .then(response => {
-                    setProducts(response.data);
-                })
+            if (firstLoadRef.current) {
+                setLoading(true);
+            }
+            axios.post('/api/cart', { ids: cartProducts }).then(response => {
+                setProducts(response.data);
+                setLoading(false);
+                firstLoadRef.current = false;
+            });
         } else {
-            // Clear products when cart is empty
             setProducts([]);
+            setLoading(false);
         }
     }, [cartProducts]);
 
@@ -64,6 +70,7 @@ export default function CartPage() {
         totalpercentage += percentage;
     }
 
+    if (loading) return <CartSkeleton />;
 
 
     return (
@@ -131,6 +138,7 @@ export default function CartPage() {
                                             <div className="flex flex-col justify-between items-end w-1/3 gap-3">
                                                 {/* Delete Icon */}
                                                 <button
+                                                    type="button"
                                                     onClick={() => deleteProduct(product._id)}
                                                     className="self-end text-red-500 hover:text-red-700 cursor-pointer delete-button transition-colors"
                                                 >
@@ -142,11 +150,12 @@ export default function CartPage() {
                                                 {/* Quantity Controls */}
                                                 <div className="flex justify-center items-center gap-x-2 py-1 px-4 bg-[#F0F0F0] rounded-full">
                                                     <button
+                                                        type="button"
                                                         onClick={() => decreaseProduct(product._id)}
                                                         disabled={isMinimum}
                                                         className={`rounded-full cursor-pointer transition-colors ${isMinimum
-                                                                ? 'text-gray-400 cursor-not-allowed'
-                                                                : 'text-black hover:text-gray-600'
+                                                            ? 'text-gray-400 cursor-not-allowed'
+                                                            : 'text-black hover:text-gray-600'
                                                             }`}
                                                     >
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
@@ -154,7 +163,7 @@ export default function CartPage() {
                                                         </svg>
                                                     </button>
                                                     <div>{productCount}</div>
-                                                    <button onClick={() => increaseProduct(product._id)} className="rounded-full cursor-pointer hover:text-gray-600 transition-colors">
+                                                    <button type="button" onClick={() => increaseProduct(product._id)} className="rounded-full cursor-pointer hover:text-gray-600 transition-colors">
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
                                                             <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
                                                         </svg>
@@ -178,7 +187,7 @@ export default function CartPage() {
                                 <p className="text-lg font-semibold">${totalPrice}</p>
                             </div>
                             <div className="flex justify-between items-center w-full ">
-                                <p className="text-[#00000099]/60">Discount ({totalpercentage})</p>
+                                <p className="text-[#00000099]/60">Discount ({totalpercentage}%)</p>
                                 <p className="text-lg font-semibold text-red-600">-${totaldiscount}</p>
                             </div>
                             <div className="flex justify-between items-center w-full ">
@@ -207,14 +216,18 @@ export default function CartPage() {
 
                                 </div>
 
-                                <button className="bg-black text-white rounded-full px-8 py-3 text-sm ">Apply</button>
+                                <button type="button" className="bg-black text-white rounded-full px-8 py-3 text-sm ">Apply</button>
                             </div>
 
                             <div className="w-full">
-                                <button className="bg-black flex justify-center items-center gap-3 text-white rounded-full w-full px-8 py-3 text-sm  mt-3">Go to Checkout  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
-                                    <path fillRule="evenodd" d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                                </svg>
-                                </button>
+                                <Link href={'/check-out'}>
+                                    <button
+                                        type="button"
+                                        className="cursor-pointer bg-black flex justify-center items-center gap-3 text-white rounded-full w-full px-8 py-3 text-sm  mt-3">Go to Checkout  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                                            <path fillRule="evenodd" d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </Link>
                             </div>
 
                         </div>
