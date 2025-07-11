@@ -9,7 +9,7 @@ import { useContext, useEffect, useState } from "react";
 
 export default function CartPage() {
 
-    const { cartProducts } = useContext(CartContext);
+    const { cartProducts, addProduct, removeProduct } = useContext(CartContext);
     const [products, setProducts] = useState([]);
 
 
@@ -21,6 +21,38 @@ export default function CartPage() {
                 })
         }
     }, [cartProducts]);
+
+
+    function increaseProduct(id) {
+        addProduct(id);
+    }
+
+    function decreaseProduct(id) {
+        removeProduct(id);
+    }
+
+    let totalPrice = 0;
+
+    for (const productId of cartProducts) {
+        const price = products.find(p => p._id === productId)?.price || 0;
+        totalPrice += price;
+    }
+
+    let totaldiscount = 0
+
+    for (const productId of cartProducts) {
+        const discount = products.find(p => p._id === productId)?.discount || 0;
+        totaldiscount += discount;
+    }
+
+    let totalpercentage = 0
+
+    for (const productId of cartProducts) {
+        const percentage = products.find(p => p._id === productId)?.percentage || 0;
+        totalpercentage += percentage;
+    }
+
+
 
     return (
         <>
@@ -56,7 +88,7 @@ export default function CartPage() {
 
                     {products?.length > 0 && (
                         <>
-                            <div className="flex flex-col justify-center items-start w-full lg:w-[60%] rounded-4xl border-2 border-[#F0F0F0] gap-y-3 p-5">
+                            <div className="flex flex-col justify-center items-start w-full lg:w-[60%] rounded-4xl border-2 border-[#F0F0F0] gap-y-3">
                                 {products.map(product => (
                                     <div key={product._id} className="w-full flex rounded-lg p-4 gap-4">
                                         {/* LEFT SIDE */}
@@ -65,9 +97,9 @@ export default function CartPage() {
                                                 <Image
                                                     src={product.images[0]}
                                                     alt={product.title}
-                                                    width={60}
-                                                    height={60}
-                                                    className="rounded-lg object-cover bg-[#F0EEED] shadow-md p-2"
+                                                    width={80}
+                                                    height={80}
+                                                    className="rounded-lg object-cover bg-[#F0EEED] shadow-md p-1"
                                                 />
                                             )}
                                             <div className="flex flex-col justify-between">
@@ -80,24 +112,24 @@ export default function CartPage() {
                                         </div>
 
                                         {/* RIGHT SIDE */}
-                                        <div className="flex flex-col justify-between items-end w-1/3 gap-3">
+                                        <div className="flex flex-col justify-center items-end w-1/3 gap-3">
                                             {/* Delete Icon */}
-                                            <button className="self-end text-red-500 cursor-pointer">
+                                            {/* <button className="self-end text-red-500 cursor-pointer">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
                                                     <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 1 0 .23 1.482l.149-.022.841 10.518A2.75 2.75 0 0 0 7.596 19h4.807a2.75 2.75 0 0 0 2.742-2.53l.841-10.52.149.023a.75.75 0 0 0 .23-1.482A41.03 41.03 0 0 0 14 4.193V3.75A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4ZM8.58 7.72a.75.75 0 0 0-1.5.06l.3 7.5a.75.75 0 1 0 1.5-.06l-.3-7.5Zm4.34.06a.75.75 0 1 0-1.5-.06l-.3 7.5a.75.75 0 1 0 1.5.06l.3-7.5Z" clipRule="evenodd" />
                                                 </svg>
 
-                                            </button>
+                                            </button> */}
 
                                             {/* Quantity Controls */}
                                             <div className="flex justify-center items-center gap-x-2 py-1 px-4 bg-[#F0F0F0] rounded-full">
-                                                <button className="rounded-full cursor-pointer">
+                                                <button onClick={() => decreaseProduct(product._id)} className="rounded-full cursor-pointer">
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
                                                         <path d="M3.75 7.25a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z" />
                                                     </svg>
                                                 </button>
-                                                <div>1</div>
-                                                <button className="rounded-full cursor-pointer">
+                                                <div>{cartProducts.filter(id => id === product._id).length}</div>
+                                                <button onClick={() => increaseProduct(product._id)} className="rounded-full cursor-pointer">
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
                                                         <path d="M8.75 3.75a.75.75 0 0 0-1.5 0v3.5h-3.5a.75.75 0 0 0 0 1.5h3.5v3.5a.75.75 0 0 0 1.5 0v-3.5h3.5a.75.75 0 0 0 0-1.5h-3.5v-3.5Z" />
                                                     </svg>
@@ -117,11 +149,11 @@ export default function CartPage() {
                             <h1 className="text-2xl font-semibold  text-start w-full">Order Summary</h1>
                             <div className="flex justify-between items-center w-full ">
                                 <p className="text-[#00000099]/60">Subtotal</p>
-                                <p className="text-lg font-semibold">$0.00</p>
+                                <p className="text-lg font-semibold">${totalPrice}</p>
                             </div>
                             <div className="flex justify-between items-center w-full ">
-                                <p className="text-[#00000099]/60">Discount</p>
-                                <p className="text-lg font-semibold text-red-600">$0.00</p>
+                                <p className="text-[#00000099]/60">Discount ({totalpercentage})</p>
+                                <p className="text-lg font-semibold text-red-600">-${totaldiscount}</p>
                             </div>
                             <div className="flex justify-between items-center w-full ">
                                 <p className="text-[#00000099]/60">Delivery Fee</p>
@@ -132,7 +164,7 @@ export default function CartPage() {
 
                             <div className="flex justify-between items-center w-full ">
                                 <p className="text-[#00000099]/80 text-lg">Total</p>
-                                <p className="text-2xl font-semibold">$0.00</p>
+                                <p className="text-2xl font-semibold">${totalPrice}</p>
                             </div>
 
                             <div className="flex gap-x-3 w-full items-center justify-between">
