@@ -104,7 +104,7 @@ export default function CartPage() {
                                 {products.map(product => {
                                     const productCount = cartProducts.filter(id => id === product._id).length;
                                     const isMinimum = productCount === 1;
-                                    
+
                                     return (
                                         <div key={product._id} className="w-full flex rounded-lg p-4 gap-4">
                                             {/* LEFT SIDE */}
@@ -128,9 +128,9 @@ export default function CartPage() {
                                             </div>
 
                                             {/* RIGHT SIDE */}
-                                            <div className="flex flex-col justify-center items-end w-1/3 gap-3">
+                                            <div className="flex flex-col justify-between items-end w-1/3 gap-3">
                                                 {/* Delete Icon */}
-                                                <button 
+                                                <button
                                                     onClick={() => deleteProduct(product._id)}
                                                     className="self-end text-red-500 hover:text-red-700 cursor-pointer delete-button transition-colors"
                                                 >
@@ -141,14 +141,13 @@ export default function CartPage() {
 
                                                 {/* Quantity Controls */}
                                                 <div className="flex justify-center items-center gap-x-2 py-1 px-4 bg-[#F0F0F0] rounded-full">
-                                                    <button 
-                                                        onClick={() => decreaseProduct(product._id)} 
+                                                    <button
+                                                        onClick={() => decreaseProduct(product._id)}
                                                         disabled={isMinimum}
-                                                        className={`rounded-full cursor-pointer transition-colors ${
-                                                            isMinimum 
-                                                                ? 'text-gray-400 cursor-not-allowed' 
+                                                        className={`rounded-full cursor-pointer transition-colors ${isMinimum
+                                                                ? 'text-gray-400 cursor-not-allowed'
                                                                 : 'text-black hover:text-gray-600'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-4">
                                                             <path d="M3.75 7.25a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5Z" />
