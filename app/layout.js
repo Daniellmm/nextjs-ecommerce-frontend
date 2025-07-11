@@ -17,6 +17,9 @@ const poppins = Poppins({
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://js.paystack.co/v1/inline.js"></script>
+      </head>
       <body className={`${poppins.variable} antialiased`}>
         <CartContextProvider>
           {children}

@@ -1,7 +1,6 @@
 'use client'
 import { useState, useContext, useEffect } from "react";
 import { CartContext } from "@/components/CartContext";
-import { PaystackButton } from "react-paystack";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
@@ -38,11 +37,11 @@ export default function CheckoutPage() {
                 },
                 body: JSON.stringify({ ids: cartProducts })
             });
-            
+
             if (!response.ok) {
                 throw new Error('Failed to fetch products');
             }
-            
+
             const productsData = await response.json();
             setProducts(productsData);
         } catch (error) {
@@ -90,23 +89,35 @@ export default function CheckoutPage() {
 
     const { cartSummary, totalPrice } = getCartSummary();
 
-    const publicKey = "your-paystack-public-key";
-    const totalAmount = totalPrice * 100; // amount in kobo
 
-    const componentProps = {
-        email: shippingInfo.email,
-        amount: totalAmount,
-        metadata: {
-            name: shippingInfo.name,
-            phone: shippingInfo.phone,
-        },
-        publicKey,
-        text: "Pay Now",
-        onSuccess: () => {
-            setStep(4);
-        },
-        onClose: () => alert("Payment closed"),
+    const handlePaystackPayment = () => {
+        const handler = window.PaystackPop.setup({
+            key: 'your-public-key-here',
+            email: customerEmail,
+            amount: totalAmount * 100, // in kobo
+            currency: 'NGN',
+            ref: `ref-${Date.now()}`, // unique ref
+            metadata: {
+                custom_fields: [
+                    {
+                        display_name: "Mobile Number",
+                        variable_name: "mobile_number",
+                        value: customerPhone,
+                    }
+                ]
+            },
+            callback: function (response) {
+                // Verify payment here on the server
+                console.log('Payment successful!', response);
+            },
+            onClose: function () {
+                console.log('Payment closed');
+            },
+        });
+
+        handler.openIframe();
     };
+
 
     const steps = [
         { number: 1, title: "Delivery Info" },
@@ -124,11 +135,10 @@ export default function CheckoutPage() {
                     <div className="flex items-center justify-between mb-4">
                         {steps.map((stepItem, index) => (
                             <div key={stepItem.number} className="flex flex-col items-center">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                                    step >= stepItem.number 
-                                        ? 'bg-black text-white' 
-                                        : 'bg-gray-200 text-gray-600'
-                                }`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${step >= stepItem.number
+                                    ? 'bg-black text-white'
+                                    : 'bg-gray-200 text-gray-600'
+                                    }`}>
                                     {step > stepItem.number ? (
                                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -137,20 +147,19 @@ export default function CheckoutPage() {
                                         stepItem.number
                                     )}
                                 </div>
-                                <span className={`text-xs mt-2 ${
-                                    step >= stepItem.number ? 'text-black' : 'text-gray-500'
-                                }`}>
+                                <span className={`text-xs mt-2 ${step >= stepItem.number ? 'text-black' : 'text-gray-500'
+                                    }`}>
                                     {stepItem.title}
                                 </span>
                             </div>
                         ))}
                     </div>
-                    
+
                     {/* Progress Line */}
                     <div className="relative">
                         <div className="absolute top-0 left-0 h-1 bg-gray-200 rounded-full" style={{ width: '100%' }}></div>
-                        <div 
-                            className="absolute top-0 left-0 h-1 bg-black rounded-full transition-all duration-300 ease-in-out" 
+                        <div
+                            className="absolute top-0 left-0 h-1 bg-black rounded-full transition-all duration-300 ease-in-out"
                             style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
                         ></div>
                     </div>
@@ -216,7 +225,7 @@ export default function CheckoutPage() {
                 {step === 2 && (
                     <>
                         <h2 className="text-2xl font-bold mb-4">Review Order</h2>
-                        
+
                         {isLoading ? (
                             <div className="flex justify-center items-center py-8">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
@@ -239,7 +248,7 @@ export default function CheckoutPage() {
                                                 </div>
                                             ))}
                                         </div>
-                                        
+
                                         <div className="flex justify-between items-center font-bold text-lg border-t pt-4">
                                             <span>Total:</span>
                                             <span>₦{totalPrice.toLocaleString()}</span>
@@ -254,9 +263,9 @@ export default function CheckoutPage() {
                         )}
 
                         <div className="flex w-full justify-between items-center mt-4">
-                            <button 
-                                onClick={handlePrevious} 
-                                type="button" 
+                            <button
+                                onClick={handlePrevious}
+                                type="button"
                                 className="flex justify-center gap-2 items-center cursor-pointer"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
@@ -281,7 +290,7 @@ export default function CheckoutPage() {
                 {step === 3 && (
                     <>
                         <h2 className="text-2xl font-bold mb-4">Payment</h2>
-                        
+
                         {/* Order Summary */}
                         <div className="w-full mb-6 p-4 bg-gray-50 rounded-lg">
                             <h3 className="font-semibold mb-2">Order Summary</h3>
@@ -299,12 +308,15 @@ export default function CheckoutPage() {
                             </div>
                         </div>
 
-                        <PaystackButton {...componentProps} className="bg-green-600 text-white px-6 py-3 rounded mb-4 w-full" />
-                        
+                        <button onClick={handlePaystackPayment} className="bg-black text-white px-6 py-3 rounded-full">
+                            Proceed to Paystack Payment
+                        </button>
+
+
                         <div className="flex w-full justify-between items-center mt-4">
-                            <button 
-                                onClick={handlePrevious} 
-                                type="button" 
+                            <button
+                                onClick={handlePrevious}
+                                type="button"
                                 className="flex justify-center gap-2 items-center cursor-pointer"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
