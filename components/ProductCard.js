@@ -14,7 +14,7 @@ export default function ProductCard({ product }) {
     }
 
     return (
-        <div className="bg-[#F0EEED] relative rounded-lg shadow-md p-4 h-[420px] w-[300px] flex flex-col justify-center items-center">
+        <div className="bg-[#F0EEED] relative rounded-lg shadow-md p-4 h-[400px] w-[300px] flex flex-col justify-center items-center">
             <button
                 className='absolute top-6 left-4 cursor-pointer'
                 onClick={() => setIsTapped(!isTapped)}>
@@ -32,8 +32,8 @@ export default function ProductCard({ product }) {
                 <Image
                     src={product.images[0]}
                     alt={product.title}
-                    width={200}
-                    height={200}
+                    width={150}
+                    height={150}
                     className="object-cover rounded-lg mb-2"
                 />
             )}
