@@ -184,15 +184,15 @@ export default function CartPage() {
                             <h1 className="text-2xl font-semibold  text-start w-full">Order Summary</h1>
                             <div className="flex justify-between items-center w-full ">
                                 <p className="text-[#00000099]/60">Subtotal</p>
-                                <p className="text-lg font-semibold">${totalPrice}</p>
+                                <p className="text-md font-semibold">${totalPrice}</p>
                             </div>
                             <div className="flex justify-between items-center w-full ">
                                 <p className="text-[#00000099]/60">Discount ({totalpercentage}%)</p>
-                                <p className="text-lg font-semibold text-red-600">-${totaldiscount}</p>
+                                <p className="text-md font-semibold text-red-600">-${totaldiscount}</p>
                             </div>
                             <div className="flex justify-between items-center w-full ">
                                 <p className="text-[#00000099]/60">Delivery Fee</p>
-                                <p className="text-lg font-semibold">$0.00</p>
+                                <p className="text-md font-semibold">$0.00</p>
                             </div>
 
                             <div className="w-full border border-[#F0F0F0]"></div>
@@ -220,10 +220,11 @@ export default function CartPage() {
                             </div>
 
                             <div className="w-full">
-                                <Link href={'/check-out'}>
+                                <Link href={'/checkout/shipping'}>
                                     <button
                                         type="button"
-                                        className="cursor-pointer bg-black flex justify-center items-center gap-3 text-white rounded-full w-full px-8 py-3 text-sm  mt-3">Go to Checkout  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
+                                        className="cursor-pointer bg-black flex justify-center items-center gap-3 text-white rounded-full w-full px-8 py-3 text-sm  mt-3">Go to Checkout  
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-5">
                                             <path fillRule="evenodd" d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06l6.22-6.22H3a.75.75 0 0 1 0-1.5h16.19l-6.22-6.22a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                                         </svg>
                                     </button>
