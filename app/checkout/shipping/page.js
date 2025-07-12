@@ -145,7 +145,7 @@ export default function CheckoutPage() {
 
             const data = await res.json();
             if (data.status === 'success') {
-                setStep(4);
+                setStep(4); 
             } else {
                 alert('Payment verification failed');
             }

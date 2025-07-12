@@ -7,6 +7,9 @@ import { FiShoppingCart } from "react-icons/fi";
 import { MdOutlineAccountCircle } from "react-icons/md";
 import { IoClose, IoSearchOutline } from "react-icons/io5";
 import { CartContext } from "./CartContext";
+import { useSession, signIn, signOut } from "next-auth/react";
+import PrimaryBtn from "./PrimaryBtn";
+
 
 export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +18,9 @@ export default function Header() {
     const [scrolled, setScrolled] = useState(false);
 
 
-    const { cartProducts } = useContext(CartContext)
+    const { cartProducts } = useContext(CartContext);
+    const { data: session } = useSession();
+
 
 
     // useEffect(() => {
@@ -72,7 +77,7 @@ export default function Header() {
                         )}
                     </div>
 
-                    <div className='flex gap-4 items-center'>
+                    <div className='flex gap-4 items-center justify-end'>
                         <IoSearchOutline
                             className="text-2xl lg:hidden"
                             onClick={() => setShowMobileSearch(!showMobileSearch)}
@@ -83,8 +88,19 @@ export default function Header() {
                                 <div className="px-[5px] bg-black rounded-full text-white absolute text-sm right-[-10px] top-[-8px]">{cartProducts.length}</div>
                             </div>
                         </Link>
-                        <MdOutlineAccountCircle className='text-2xl' />
+
+                        {session ? (
+                            <>
+                                <Link href="/account" className="hidden lg:block">
+                                    <MdOutlineAccountCircle className="text-2xl" />
+                                </Link>
+                                <button onClick={() => signOut({ callbackUrl: 'http://localhost:3001/' })} className="text-sm ml-2">Logout</button>
+                            </>
+                        ) : (
+                            <PrimaryBtn onClick={() => signIn()} className="text-sm">Login</PrimaryBtn>
+                        )}
                     </div>
+
                 </div>
             </div>
 
