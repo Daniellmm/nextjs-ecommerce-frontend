@@ -32,12 +32,11 @@ export default function Login() {
       if (result?.error) {
         setError('Invalid credentials')
       } else if (result?.ok) {
-        // Get the callback URL from URL params or default to cart
         const urlParams = new URLSearchParams(window.location.search);
-        const callbackUrl = urlParams.get('callbackUrl') || '/cart';
-        
-        // Redirect to intended page
+        const rawCallbackUrl = urlParams.get('callbackUrl');
+        const callbackUrl = rawCallbackUrl ? decodeURIComponent(rawCallbackUrl) : '/cart';
         router.push(callbackUrl);
+
       }
     } catch (error) {
       setError('Something went wrong')
@@ -50,9 +49,9 @@ export default function Login() {
     // Get the callback URL from URL params or default to cart
     const urlParams = new URLSearchParams(window.location.search);
     const callbackUrl = urlParams.get('callbackUrl') || '/cart';
-    
-    signIn('google', { 
-      callbackUrl: callbackUrl 
+
+    signIn('google', {
+      callbackUrl: callbackUrl
     });
   }
 

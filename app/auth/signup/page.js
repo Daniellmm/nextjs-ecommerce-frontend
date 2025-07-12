@@ -49,9 +49,10 @@ export default function Register() {
 
         if (result?.ok) {
           const urlParams = new URLSearchParams(window.location.search);
-          const callbackUrl = urlParams.get('callbackUrl') || '/cart';
-
+          const rawCallbackUrl = urlParams.get('callbackUrl');
+          const callbackUrl = rawCallbackUrl ? decodeURIComponent(rawCallbackUrl) : '/cart';
           router.push(callbackUrl);
+
         }
       } else {
         const data = await response.json()
