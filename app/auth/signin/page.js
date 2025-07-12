@@ -31,18 +31,29 @@ export default function Login() {
 
       if (result?.error) {
         setError('Invalid credentials')
-      } else {
-        // Redirect to intended page or home
-        const session = await getSession()
-        if (session) {
-          router.push('/cart')
-        }
+      } else if (result?.ok) {
+        // Get the callback URL from URL params or default to cart
+        const urlParams = new URLSearchParams(window.location.search);
+        const callbackUrl = urlParams.get('callbackUrl') || '/cart';
+        
+        // Redirect to intended page
+        router.push(callbackUrl);
       }
     } catch (error) {
       setError('Something went wrong')
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleGoogleSignIn = () => {
+    // Get the callback URL from URL params or default to cart
+    const urlParams = new URLSearchParams(window.location.search);
+    const callbackUrl = urlParams.get('callbackUrl') || '/cart';
+    
+    signIn('google', { 
+      callbackUrl: callbackUrl 
+    });
   }
 
   return (
@@ -107,7 +118,7 @@ export default function Login() {
 
             <div className="text-center">
               <p className="text-sm text-gray-600">
-               {"Don't have an account?"}{' '}
+                {"Don't have an account?"}{' '}
                 <Link href="/auth/signup" className="font-medium text-black hover:text-gray-800">
                   Sign up
                 </Link>
@@ -116,7 +127,10 @@ export default function Login() {
           </form>
 
           <div className="text-center mt-4 w-full flex justify-center">
-            <PrimaryBtn onClick={() => signIn('google')} className='rounded-full bg-black w-full py-3 flex gap-3 justify-center items-center text-black lg:w-auto px-10 cursor-pointer'>
+            <PrimaryBtn
+              onClick={handleGoogleSignIn}
+              className='rounded-full bg-black w-full py-3 flex gap-3 justify-center items-center text-black lg:w-auto px-10 cursor-pointer'
+            >
               <Image src={GL} height={30} width={30} alt='google-logo' />
               Sign in with Google
             </PrimaryBtn>

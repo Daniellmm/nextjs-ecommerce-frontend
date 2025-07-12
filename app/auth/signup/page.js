@@ -48,7 +48,10 @@ export default function Register() {
         })
 
         if (result?.ok) {
-          router.push('/cart')
+          const urlParams = new URLSearchParams(window.location.search);
+          const callbackUrl = urlParams.get('callbackUrl') || '/cart';
+
+          router.push(callbackUrl);
         }
       } else {
         const data = await response.json()
@@ -59,6 +62,16 @@ export default function Register() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleGoogleSignIn = () => {
+    // Get the callback URL from URL params or default to cart
+    const urlParams = new URLSearchParams(window.location.search);
+    const callbackUrl = urlParams.get('callbackUrl') || '/cart';
+
+    signIn('google', {
+      callbackUrl: callbackUrl
+    });
   }
 
   return (
@@ -164,7 +177,9 @@ export default function Register() {
           </form>
 
           <div className="text-center mt-4 w-full flex justify-center">
-            <PrimaryBtn onClick={() => signIn('google')} className='rounded-full bg-black w-full py-3 flex gap-3 justify-center items-center text-black lg:w-auto px-10 cursor-pointer'>
+            <PrimaryBtn
+              onClick={handleGoogleSignIn}
+              className='rounded-full bg-black w-full py-3 flex gap-3 justify-center items-center text-black lg:w-auto px-10 cursor-pointer'>
               <Image src={GL} height={30} width={30} alt='google-logo' />
               Create account with Google
             </PrimaryBtn>

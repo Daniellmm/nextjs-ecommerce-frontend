@@ -23,14 +23,6 @@ export default function Header() {
 
 
 
-    // useEffect(() => {
-    //     const handleScroll = () => {
-    //         setScrolled(window.scrollY > 90);
-    //     };
-    //     window.addEventListener("scroll", handleScroll);
-    //     return () => window.removeEventListener("scroll", handleScroll);
-    // }, []);
-
     return (
         <header
             className='fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white shadow-none'>
@@ -77,27 +69,28 @@ export default function Header() {
                         )}
                     </div>
 
-                    <div className='flex gap-4 items-center justify-end'>
-                        <IoSearchOutline
-                            className="text-2xl lg:hidden"
-                            onClick={() => setShowMobileSearch(!showMobileSearch)}
-                        />
+                    <div className='flex gap-4 items-center justify-between'>
+
                         <Link href={'/cart'}>
                             <div className="relative">
-                                <FiShoppingCart className='text-2xl relative' />
+                                <FiShoppingCart className='text-xl relative' />
                                 <div className="px-[5px] bg-black rounded-full text-white absolute text-sm right-[-10px] top-[-8px]">{cartProducts.length}</div>
                             </div>
                         </Link>
 
                         {session ? (
                             <>
+                                <IoSearchOutline
+                                    className="text-2xl lg:hidden"
+                                    onClick={() => setShowMobileSearch(!showMobileSearch)}
+                                />
                                 <Link href="/account" className="hidden lg:block">
                                     <MdOutlineAccountCircle className="text-2xl" />
                                 </Link>
                                 <button onClick={() => signOut({ callbackUrl: 'http://localhost:3001/' })} className="text-sm ml-2">Logout</button>
                             </>
                         ) : (
-                            <PrimaryBtn onClick={() => signIn()} className="text-sm">Login</PrimaryBtn>
+                            <PrimaryBtn onClick={() => signIn()} className="text-xs">Login</PrimaryBtn>
                         )}
                     </div>
 
