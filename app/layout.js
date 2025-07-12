@@ -4,6 +4,7 @@ import "./globals.css";
 import { CartContextProvider } from "@/components/CartContext";
 import AuthProvider from "@/components/AuthProvider";
 import Script from "next/script";
+import { Toaster } from "react-hot-toast";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
       <body className={`${poppins.variable} antialiased`}>
         <AuthProvider>
           <CartContextProvider>
+            <Toaster position="top-right" reverseOrder={false} />
             {children}
           </CartContextProvider>
         </AuthProvider>

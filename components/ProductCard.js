@@ -2,15 +2,28 @@
 import Image from 'next/image'
 import { useContext, useState } from 'react'
 import { CartContext } from './CartContext'
+import { useSession, signIn } from 'next-auth/react';
+import { toast } from 'react-hot-toast';
+
 
 
 export default function ProductCard({ product }) {
 
-    const [isTapped, setIsTapped] = useState(false)
+    const [isTapped, setIsTapped] = useState(false);
+    const { addProduct } = useContext(CartContext);
+    const { data: session } = useSession();
 
-    const { addProduct } = useContext(CartContext)
+
     function addProductToCart() {
-        addProduct(product._id)
+        if (!session) {
+            toast.error('You must be signed in to add items to cart.');
+            setTimeout(() => {
+                signIn(undefined, { callbackUrl: window.location.href });
+            }, 1500);
+            return;
+        }
+        addProduct(product._id);
+        toast.success('Product added to cart');
     }
 
     return (

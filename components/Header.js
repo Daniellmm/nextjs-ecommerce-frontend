@@ -71,12 +71,7 @@ export default function Header() {
 
                     <div className='flex gap-4 items-center justify-between'>
 
-                        <Link href={'/cart'}>
-                            <div className="relative">
-                                <FiShoppingCart className='text-xl relative' />
-                                <div className="px-[5px] bg-black rounded-full text-white absolute text-sm right-[-10px] top-[-8px]">{cartProducts.length}</div>
-                            </div>
-                        </Link>
+
 
                         {session ? (
                             <>
@@ -84,10 +79,15 @@ export default function Header() {
                                     className="text-2xl lg:hidden"
                                     onClick={() => setShowMobileSearch(!showMobileSearch)}
                                 />
-                                <Link href="/account" className="hidden lg:block">
+                                <Link href={'/cart'}>
+                                    <div className="relative">
+                                        <FiShoppingCart className='text-xl relative' />
+                                        <div className="px-[5px] bg-black rounded-full text-white absolute text-sm right-[-10px] top-[-8px]">{cartProducts.length}</div>
+                                    </div>
+                                </Link>
+                                <Link href="/profile" className="hidden lg:block">
                                     <MdOutlineAccountCircle className="text-2xl" />
                                 </Link>
-                                <button onClick={() => signOut({ callbackUrl: 'http://localhost:3001/' })} className="text-sm ml-2">Logout</button>
                             </>
                         ) : (
                             <PrimaryBtn onClick={() => signIn()} className="text-xs">Login</PrimaryBtn>
@@ -119,16 +119,31 @@ export default function Header() {
 
             {/* Mobile Nav Links */}
             {isOpen && (
-                <nav className="w-full mt-4 px-4 lg:hidden">
-                    <div className='flex flex-col gap-3'>
-                        <Link href={'/'}>Shop</Link>
-                        <Link href={'/product'}>Products</Link>
-                        <Link href={'/sale'}>On Sales</Link>
-                        <Link href={'/arrival'}>New Arrivals</Link>
-                        <Link href={'/brand'}>Brands</Link>
-                    </div>
-                </nav>
+                session ? (
+                    <nav className="w-full mt-4 px-4 lg:hidden" >
+                        <div className='flex flex-col gap-3'>
+                            <Link href={'/'}>Shop</Link>
+                            <Link href={'/product'}>Products</Link>
+                            <Link href={'/sale'}>On Sales</Link>
+                            <Link href={'/arrival'}>New Arrivals</Link>
+                            <Link href={'/brand'}>Brands</Link>
+                            <Link href={'/profile'}>Profile</Link>
+                            <PrimaryBtn onClick={() => signOut({ callbackUrl: 'http://localhost:3001/' })} className="text-sm ml-2">Logout</PrimaryBtn>
+
+                        </div>
+                    </nav>
+                ) : (
+                    <nav className="w-full mt-4 px-4 lg:hidden">
+                        <div className='flex flex-col gap-3'>
+                            <Link href={'/'}>Shop</Link>
+                            <Link href={'/product'}>Products</Link>
+                            <Link href={'/sale'}>On Sales</Link>
+                            <Link href={'/arrival'}>New Arrivals</Link>
+                            <Link href={'/brand'}>Brands</Link>
+                        </div>
+                    </nav>
+                )
             )}
-        </header>
+        </header >
     );
 }
