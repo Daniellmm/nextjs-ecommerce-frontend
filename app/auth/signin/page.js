@@ -34,7 +34,7 @@ export default function Login() {
       } else if (result?.ok) {
         const urlParams = new URLSearchParams(window.location.search);
         const rawCallbackUrl = urlParams.get('callbackUrl');
-        const callbackUrl = rawCallbackUrl ? decodeURIComponent(rawCallbackUrl) : '/cart';
+        const callbackUrl = rawCallbackUrl ? decodeURIComponent(rawCallbackUrl) : '/';
         router.push(callbackUrl);
 
       }
@@ -48,7 +48,7 @@ export default function Login() {
   const handleGoogleSignIn = () => {
     // Get the callback URL from URL params or default to cart
     const urlParams = new URLSearchParams(window.location.search);
-    const callbackUrl = urlParams.get('callbackUrl') || '/cart';
+    const callbackUrl = urlParams.get('callbackUrl') || '/';
 
     signIn('google', {
       callbackUrl: callbackUrl

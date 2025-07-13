@@ -120,7 +120,7 @@ export default function Header() {
             {/* Mobile Nav Links */}
             {isOpen && (
                 session ? (
-                    <nav className="w-full mt-4 px-4 lg:hidden" >
+                    <nav className="w-full mt-4 px-4 lg:hidden border-[#d6d5d5] shadow-sm pb-4 border-b" >
                         <div className='flex flex-col gap-3'>
                             <Link href={'/'}>Shop</Link>
                             <Link href={'/product'}>Products</Link>

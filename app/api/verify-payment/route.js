@@ -9,7 +9,7 @@ export async function POST(req) {
     }
 
     try {
-        const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_PK;
+        const secretKey = process.env.NEXT_PUBLIC_PAYSTACK_SK;
 
         const verifyRes = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
             method: 'GET',

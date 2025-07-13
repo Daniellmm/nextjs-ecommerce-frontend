@@ -4,12 +4,14 @@ import { CartContext } from "@/components/CartContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function CheckoutPage() {
-    const { cartProducts, hydrated } = useContext(CartContext);
+    const { cartProducts, hydrated, setCartProducts } = useContext(CartContext);
     const router = useRouter();
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const { data: session, status } = useSession()
 
     const [step, setStep] = useState(1);
     const [shippingInfo, setShippingInfo] = useState({
@@ -20,6 +22,17 @@ export default function CheckoutPage() {
         city: '',
         postalCode: ''
     });
+
+    useEffect(() => {
+        if (session && session.user && !shippingInfo.email) {
+            setShippingInfo(prev => ({
+                ...prev,
+                name: session.user.name || '',
+                email: session.user.email || '',
+            }));
+        }
+    }, [session]);
+
 
     useEffect(() => {
         if (hydrated) {
@@ -134,7 +147,6 @@ export default function CheckoutPage() {
         }
     };
 
-
     async function verifyPayment(reference) {
         try {
             const res = await fetch('/api/verify-payment', {
@@ -144,16 +156,44 @@ export default function CheckoutPage() {
             });
 
             const data = await res.json();
+
+
+
             if (data.status === 'success') {
-                setStep(4); 
+                const saveRes = await fetch('/api/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...shippingInfo,
+                        cartProducts,
+                        paid: true,
+                    }),
+                });
+
+                console.log("Sending order:", {
+                    ...shippingInfo,
+                    cartProducts,
+                    paid: true,
+                });
+
+                const saveData = await saveRes.json();
+                if (saveData.status === 'success') {
+                    setCartProducts([]);
+                    setStep(4);
+                } else {
+                    alert('Failed to save order');
+
+                }
             } else {
                 alert('Payment verification failed');
             }
+
         } catch (error) {
             console.error('Error verifying payment:', error);
             alert('Something went wrong');
         }
     }
+
 
 
 
