@@ -146,51 +146,42 @@ export default function CheckoutPage() {
     };
 
     async function verifyPayment(reference) {
-        try {
-            const res = await fetch('/api/verify-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reference }),
-            });
+  try {
+    const res = await fetch('/api/verify-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reference }), // ✅ Fix here
+    });
 
-            const data = await res.json();
+    const data = await res.json();
 
+    if (data.status === 'success') {
+      const saveRes = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...shippingInfo,
+          cartProducts,
+          paid: true,
+        }),
+      });
 
-
-            if (data.status === 'success') {
-                const saveRes = await fetch('/api/order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        ...shippingInfo,
-                        cartProducts,
-                        paid: true,
-                    }),
-                });
-
-                console.log("Sending order:", {
-                    ...shippingInfo,
-                    cartProducts,
-                    paid: true,
-                });
-
-                const saveData = await saveRes.json();
-                if (saveData.status === 'success') {
-                    setCartProducts([]);
-                    setStep(4);
-                } else {
-                    alert('Failed to save order');
-
-                }
-            } else {
-                alert('Payment verification failed');
-            }
-
-        } catch (error) {
-            console.error('Error verifying payment:', error);
-            alert('Something went wrong');
-        }
+      const saveData = await saveRes.json();
+      if (saveData.status === 'success') {
+        setCartProducts([]);
+        setStep(4);
+      } else {
+        alert('Failed to save order');
+      }
+    } else {
+      alert('Payment verification failed');
     }
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    alert('Something went wrong');
+  }
+}
+
 
 
 
