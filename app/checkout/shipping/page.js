@@ -146,41 +146,41 @@ export default function CheckoutPage() {
     };
 
     async function verifyPayment(reference) {
-  try {
-    const res = await fetch('/api/verify-payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reference }), // ✅ Fix here
-    });
+        try {
+            const res = await fetch('/api/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reference }), // ✅ Fix here
+            });
 
-    const data = await res.json();
+            const data = await res.json();
 
-    if (data.status === 'success') {
-      const saveRes = await fetch('/api/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...shippingInfo,
-          cartProducts,
-          paid: true,
-        }),
-      });
+            if (data.status === 'success') {
+                const saveRes = await fetch('/api/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...shippingInfo,
+                        cartProducts,
+                        paid: true,
+                    }),
+                });
 
-      const saveData = await saveRes.json();
-      if (saveData.status === 'success') {
-        setCartProducts([]);
-        setStep(4);
-      } else {
-        alert('Failed to save order');
-      }
-    } else {
-      alert('Payment verification failed');
+                const saveData = await saveRes.json();
+                if (saveData.status === 'success') {
+                    setCartProducts([]);
+                    setStep(4);
+                } else {
+                    alert('Failed to save order');
+                }
+            } else {
+                alert('Payment verification failed');
+            }
+        } catch (error) {
+            console.error('Error verifying payment:', error);
+            alert('Something went wrong');
+        }
     }
-  } catch (error) {
-    console.error('Error verifying payment:', error);
-    alert('Something went wrong');
-  }
-}
 
 
 
@@ -200,26 +200,33 @@ export default function CheckoutPage() {
                 {/* Progress Bar */}
                 <div className="w-full mb-8">
                     <div className="flex items-center justify-between mb-4">
-                        {steps.map((stepItem, index) => (
+                        {steps.map((stepItem) => (
                             <div key={stepItem.number} className="flex flex-col items-center">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${step >= stepItem.number
-                                    ? 'bg-black text-white'
-                                    : 'bg-gray-200 text-gray-600'
-                                    }`}>
-                                    {step > stepItem.number ? (
+                                <div
+                                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${step >= stepItem.number ? 'bg-black text-white' : 'bg-gray-200 text-gray-600'
+                                        }`}
+                                >
+                                    {step > stepItem.number || (step === stepItem.number && step === steps.length) ? (
                                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clipRule="evenodd"
+                                            />
                                         </svg>
                                     ) : (
                                         stepItem.number
                                     )}
                                 </div>
-                                <span className={`text-xs mt-2 ${step >= stepItem.number ? 'text-black' : 'text-gray-500'
-                                    }`}>
+                                <span
+                                    className={`text-xs mt-2 ${step >= stepItem.number ? 'text-black' : 'text-gray-500'
+                                        }`}
+                                >
                                     {stepItem.title}
                                 </span>
                             </div>
                         ))}
+
                     </div>
 
                     {/* Progress Line */}
