@@ -1,8 +1,6 @@
 
-import Header from "@/components/Header";
 import Hero from "./home/page";
 import BrowseSection from "@/components/BrowseSection";
-import Footer from "@/components/Footer";
 import NewProductsSection from "@/components/sections/NewProductsSection";
 import TopSellingSection from "@/components/sections/TopSellingSection";
 import CustomerReview from "@/components/CustomerReview";
@@ -12,7 +10,7 @@ import CustomerReview from "@/components/CustomerReview";
 export default function Home() {
   return (
     <div className="overflow-x-hidden">
-      <Header />
+      
 
       {/* Hero section (static content) */}
       <Hero />
@@ -29,7 +27,6 @@ export default function Home() {
       {/* Customer Reviews section */}
       <CustomerReview />
 
-      <Footer />
     </div>
   );
 }

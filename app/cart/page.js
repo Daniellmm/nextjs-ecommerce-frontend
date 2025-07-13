@@ -1,7 +1,5 @@
 'use client'
 import { CartContext } from "@/components/CartContext";
-import Footer from "@/components/Footer";
-import Header from "@/components/Header";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
@@ -75,7 +73,6 @@ export default function CartPage() {
 
     return (
         <>
-            <Header />
 
             <div className="flex flex-col items-center justify-start w-full min-h-[60vh] lg:px-20 px-5 gap-y-4 pt-24">
                 <div className=" flex justify-start items-center gap-x-1 w-full">
@@ -239,7 +236,7 @@ export default function CartPage() {
                 </div>
 
             </div >
-            <Footer />
+        
         </>
     );
 }

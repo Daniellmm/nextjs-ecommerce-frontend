@@ -5,6 +5,8 @@ import { CartContextProvider } from "@/components/CartContext";
 import AuthProvider from "@/components/AuthProvider";
 import Script from "next/script";
 import { Toaster } from "react-hot-toast";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -25,7 +27,9 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <CartContextProvider>
             <Toaster position="top-right" reverseOrder={false} />
-            {children}
+            <Header />
+            <main> {children}</main>
+            <Footer />
           </CartContextProvider>
         </AuthProvider>
       </body>

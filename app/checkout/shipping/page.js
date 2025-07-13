@@ -1,8 +1,6 @@
 'use client'
 import { useState, useContext, useEffect } from "react";
 import { CartContext } from "@/components/CartContext";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -207,7 +205,6 @@ export default function CheckoutPage() {
 
     return (
         <>
-            <Header />
             <div className="max-w-2xl mx-auto p-6 min-h-screen flex flex-col justify-center items-center">
                 {/* Progress Bar */}
                 <div className="w-full mb-8">
@@ -447,7 +444,7 @@ export default function CheckoutPage() {
                 )}
             </div>
 
-            <Footer />
+
         </>
     );
 }

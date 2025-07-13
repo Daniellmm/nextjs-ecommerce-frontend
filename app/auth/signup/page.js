@@ -4,8 +4,6 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 import PrimaryBtn from '@/components/PrimaryBtn'
 import Image from 'next/image'
 import GL from '../../../public/googleLogo.png'
@@ -77,7 +75,7 @@ export default function Register() {
 
   return (
     <>
-      <Header />
+      
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
@@ -187,7 +185,7 @@ export default function Register() {
           </div>
         </div>
       </div>
-      <Footer />
+     
     </>
   )
 }
